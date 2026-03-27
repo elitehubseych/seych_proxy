@@ -87,7 +87,7 @@ bot.onText(/\/start/, (msg) => {
     bot.sendMessage(chatId, message, { reply_markup: keyboard });
 });
 
-const webhookPath = `/bot${TELEGRAM_BOT_TOKEN}`;
+const webhookPath = '/webhook';
 
 const server = http.createServer((req, res) => {
     if (req.url === webhookPath && req.method === 'POST') {
