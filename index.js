@@ -72,7 +72,7 @@ mtprotoServer.listen(MTPROTO_PORT, '0.0.0.0', () => {
     console.log(`Secret: ${SECRET}`);
 });
 
-const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { webHook: { port: false } });
 
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
@@ -88,7 +88,6 @@ bot.onText(/\/start/, (msg) => {
 });
 
 const webhookPath = `/bot${TELEGRAM_BOT_TOKEN}`;
-const webhookUrl = `https://${DOMAIN}${webhookPath}`;
 
 const server = http.createServer((req, res) => {
     if (req.url === webhookPath && req.method === 'POST') {
@@ -115,7 +114,10 @@ const server = http.createServer((req, res) => {
 server.listen(PING_PORT, '0.0.0.0', () => {
     console.log(`HTTP server on port ${PING_PORT}`);
     
-    bot.setWebhook(webhookUrl).then(() => {
+    const webhookUrl = `https://${DOMAIN}${webhookPath}`;
+    bot.openWebHook().then(() => {
+        return bot.setWebHook(webhookUrl);
+    }).then(() => {
         console.log('Webhook set:', webhookUrl);
     }).catch(err => {
         console.error('Webhook error:', err.message);
@@ -136,7 +138,7 @@ function shutdown() {
     console.log('Shutting down');
     mtprotoServer.close();
     server.close();
-    bot.deleteWebhook().then(() => process.exit(0)).catch(() => process.exit(0));
+    bot.closeWebHook().then(() => process.exit(0)).catch(() => process.exit(0));
 }
 
 process.on('SIGTERM', shutdown);
