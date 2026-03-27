@@ -1,0 +1,26 @@
+{
+  "name": "seychproxy-mtp",
+  "version": "1.0.0",
+  "description": "MTProto proxy server with Telegram bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": [
+    "mtproto",
+    "proxy",
+    "telegram",
+    "mtproto-proxy"
+  ],
+  "author": "Seych",
+  "license": "MIT",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.61.0",
+    "crypto": "^1.0.1",
+    "http": "^0.0.1-security"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
