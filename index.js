@@ -85,7 +85,7 @@ const mtprotoServer = net.createServer((socket) => {
     socket.on('error', () => {});
 });
 
-mtprotoServer.listen(MTPROTO_PORT, () => {
+mtprotoServer.listen(MTPROTO_PORT, '0.0.0.0', () => {
     console.log(`MTProto proxy started on port ${MTPROTO_PORT}`);
     console.log(`Secret: ${SECRET}`);
 });
@@ -123,7 +123,7 @@ const pingServer = http.createServer((req, res) => {
     }));
 });
 
-pingServer.listen(PING_PORT, () => {
+pingServer.listen(PING_PORT, '0.0.0.0', () => {
     console.log(`Ping server started on port ${PING_PORT}`);
 });
 
@@ -143,3 +143,19 @@ function selfPing() {
 setInterval(selfPing, 5 * 60 * 1000);
 
 console.log('Bot and proxy servers initialized');
+
+process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    bot.stopPolling();
+    mtprotoServer.close();
+    pingServer.close();
+    process.exit(0);
+});
+
+process.on('SIGINT', () => {
+    console.log('SIGINT received, shutting down gracefully');
+    bot.stopPolling();
+    mtprotoServer.close();
+    pingServer.close();
+    process.exit(0);
+});
