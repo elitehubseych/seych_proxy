@@ -90,29 +90,51 @@ mtprotoServer.listen(MTPROTO_PORT, '0.0.0.0', () => {
     console.log(`Secret: ${SECRET}`);
 });
 
-const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
+setTimeout(() => {
+    const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
-bot.onText(/\/start/, (msg) => {
-    const chatId = msg.chat.id;
-    const proxyLink = generateMTProtoLink();
-    
-    const keyboard = {
-        inline_keyboard: [
-            [
-                {
-                    text: 'Подключить прокси',
-                    url: proxyLink
-                }
-            ]
-        ]
-    };
-    
-    const message = `SeychProxy\nЭтот прокси от Seych.\nБыстрый и надежный MTProto прокси для Telegram.`;
-    
-    bot.sendMessage(chatId, message, {
-        reply_markup: keyboard
+    bot.on('polling_error', (error) => {
+        console.log('Polling error:', error.message);
     });
-});
+
+    bot.onText(/\/start/, (msg) => {
+        const chatId = msg.chat.id;
+        const proxyLink = generateMTProtoLink();
+        
+        const keyboard = {
+            inline_keyboard: [
+                [
+                    {
+                        text: 'Подключить прокси',
+                        url: proxyLink
+                    }
+                ]
+            ]
+        };
+        
+        const message = `SeychProxy\nЭтот прокси от Seych.\nБыстрый и надежный MTProto прокси для Telegram.`;
+        
+        bot.sendMessage(chatId, message, {
+            reply_markup: keyboard
+        });
+    });
+
+    process.on('SIGTERM', () => {
+        console.log('SIGTERM received, shutting down gracefully');
+        bot.stopPolling();
+        mtprotoServer.close();
+        pingServer.close();
+        process.exit(0);
+    });
+
+    process.on('SIGINT', () => {
+        console.log('SIGINT received, shutting down gracefully');
+        bot.stopPolling();
+        mtprotoServer.close();
+        pingServer.close();
+        process.exit(0);
+    });
+}, 5000);
 
 const pingServer = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
